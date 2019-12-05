@@ -20,6 +20,45 @@ def generate_random_weighted_graph(n,m):
     return G
 
 
+def find_path(G, s, t):
+    queue = []
+    queue.append(s)
+
+    for k in queue:
+        for el in list(G.neighbors(queue[-1])):
+            if not (el in queue):
+                queue.append(el)
+                if el == t:
+                    return queue
+
+    return queue
+
+
+def find_min_st_cut(G):
+    while true:
+        #path = find_path(G,)
+        break
+
+    return 0
+
+
+def build_gomory_hu_tree(G):
+    T = nx.Graph() # Результирующее дерево
+    T.add_node(tuple(G.nodes())) # На первом шаге у Т только 1 вершина
+    while True:
+        # Шаг 2 - выбор группы вершин из V(t) в которой больше 1 вершины
+        # Если все группы по одной вершине - дерево готово
+        X = ()
+        for n in tuple(T.nodes()):
+            if len(n) >= 2:
+                X = tuple(n)
+        if not X:
+            break
+
+
+
+
+
 def main():
 
     G = generate_random_weighted_graph(7,5)
