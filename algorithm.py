@@ -16,7 +16,7 @@ def show_tree(G, filename):
 def generate_random_weighted_graph(n,m):
     G = nx.gnm_random_graph(n,m)
     for (u, v) in G.edges():
-        G.edges[u,v]['weight'] = random.randint(0,10)
+        G.edges[u,v]['weight'] = random.uniform(0.,100.)
     return G
 
 
