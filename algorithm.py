@@ -1,12 +1,14 @@
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+from collections import deque
+from sys import maxsize as maxint
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 
 def show_tree(G, filename):
     pos =graphviz_layout(G, prog='dot')
-    nx.draw(G,pos)
-    labels = nx.get_edge_attributes(G,'weight')
+    nx.draw(G,pos,with_labels = True)
+    labels = nx.get_edge_attributes(G,'capacity')
     nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
     plt.savefig(filename)
     plt.cla()
@@ -16,30 +18,19 @@ def show_tree(G, filename):
 def generate_random_weighted_graph(n,m):
     G = nx.gnm_random_graph(n,m)
     for (u, v) in G.edges():
-        G.edges[u,v]['weight'] = random.uniform(0.,100.)
+        G.edges[u,v]['capacity'] = random.randint(0,10)
     return G
 
 
-def find_path(G, s, t):
-    queue = []
-    queue.append(s)
+def find_min_st_cut(G,s,t):
+    cut_value, partition = nx.minimum_cut(G, s, t)
+    reachable, non_reachable = partition
+    cutset = set()
+    for u, nbrs in ((n, G[n]) for n in reachable):
+        cutset.update((u, v) for v in nbrs if v in non_reachable)
+    print(sorted(cutset))
 
-    for k in queue:
-        for el in list(G.neighbors(queue[-1])):
-            if not (el in queue):
-                queue.append(el)
-                if el == t:
-                    return queue
-
-    return queue
-
-
-def find_min_st_cut(G):
-    while true:
-        #path = find_path(G,)
-        break
-
-    return 0
+    return cut_value
 
 
 def build_gomory_hu_tree(G):
@@ -61,8 +52,10 @@ def build_gomory_hu_tree(G):
 
 def main():
 
-    G = generate_random_weighted_graph(7,5)
+    G = generate_random_weighted_graph(6,12)
+    show_tree(G, "graph.png")
 
+    print(find_min_st_cut(G, 0,4))
 
     T = nx.Graph()
     T.add_node(1)
@@ -71,9 +64,7 @@ def main():
 
     T.add_edge(1,2,weight = 0.3)
     T.add_edge(1,3,weight = 0.4)
-
     show_tree(T, 'tree.png')
-    show_tree(G, "graph.png")
 
 if __name__ == "__main__":
     main()
