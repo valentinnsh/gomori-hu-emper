@@ -71,7 +71,7 @@ def build_gomory_hu_tree(G0):
                 X = n
         if not X:
             break
-
+        print("Our X = ", X)
         # Шаг 3 - конструируем вспомогательный граф G'
         G = nx.Graph()
         # Сначала добавляем Х целиком
@@ -121,9 +121,19 @@ def build_gomory_hu_tree(G0):
         cut_value, cutset = find_min_st_cut(G, s, t)
         G1 = G.copy()
         G1.remove_edges_from(list(cutset))
-        A = tuple(find_connected_component(G1,t,s))
-        B = tuple(find_connected_component(G1,s,t))
+        A = list(find_connected_component(G1,t,s))
+        B = list(find_connected_component(G1,s,t))
+        for el in A:
+            if len(el) >= 2:
+                A.remove(el)
+                for i in el:
+                    A.append(el[0])
 
+        for el in B:
+            if len(el) >= 2:
+                B.remove(el)
+                for i in el:
+                    B.append(el[0])
 
         # Шаг 5 перестраиваем дерево T
         ax = tuple(set(A)&set(X))
@@ -133,13 +143,14 @@ def build_gomory_hu_tree(G0):
         T.add_node(ax)
         T.add_node(bx)
         T.add_edge(ax, bx, capacity = cut_value)
+        show_tree(T, 'test.png', 'T after adding ax and bx')
+
         print('cut_value = ', cut_value)
         show_tree(T, 'test.png', 'T after split X')
 
         new_T_edges = []
-        for y in T.neighbors(X):
+        for y in T.neighbors(X) :
             print("A = ", A, " y = ", y)
-
             if y in A:
                 e1 =(ax, y)
             else:
@@ -147,9 +158,9 @@ def build_gomory_hu_tree(G0):
             w = T.edges[X,y]['capacity']
             print(w)
             T.add_edge(e1[0], e1[1], capacity = w)
+            show_tree(T,'tree.png', 'T after adding y = ' + str(y))
 
         T.remove_node(X)
-        show_tree(T,'tree.png', 'T')
 
     # Шаг 6 - наводим красоту
     result = nx.Graph()
