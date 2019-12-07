@@ -109,7 +109,6 @@ def build_gomory_hu_tree(G0):
                         print('tolal cap MAKE INF')
                         G.add_edge(u,n)
                         G.edges[u,n]['capacity'] = total_cap
-        show_tree(G, 'test.png', 'G')
 
         # show_tree(G,'test.png')
 
@@ -135,7 +134,7 @@ def build_gomory_hu_tree(G0):
         T.add_node(bx)
         T.add_edge(ax, bx, capacity = cut_value)
         print('cut_value = ', cut_value)
-        # show_tree(T, 'test.png', 'T after split X')
+        show_tree(T, 'test.png', 'T after split X')
 
         new_T_edges = []
         for y in T.neighbors(X):
@@ -151,6 +150,7 @@ def build_gomory_hu_tree(G0):
 
         T.remove_node(X)
         show_tree(T,'tree.png', 'T')
+
     # Шаг 6 - наводим красоту
     result = nx.Graph()
     for i in T.nodes():
