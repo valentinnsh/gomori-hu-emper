@@ -36,7 +36,7 @@ def find_min_st_cut(G,s,t):
 def find_connected_component(G, s,t):
     G1 = G.copy()
     G1.remove_edge(s,t)
-    print('edges-----------------', list(G1.edges()))
+    #print('edges-----------------', list(G1.edges()))
     queue = []
     queue.append(s)
     for k in queue:
@@ -44,11 +44,11 @@ def find_connected_component(G, s,t):
             if not (el in queue):
                 queue.append(el)
                 if el == t:
-                    print("que---------", queue)
+                    #print("que---------", queue)
 
                     return queue
 
-    print("que---------", queue)
+    #print("que---------", queue)
     return queue
 
 
@@ -68,15 +68,38 @@ def build_gomory_hu_tree(G0):
         # Шаг 3 - конструируем вспомогательный граф G'
         G = nx.Graph()
         # Сначала добавляем Х целиком
-        G.add_node(tuple(X))
-        # T.add_node(tuple([1])); T.add_node(tuple([2]))
-        # T.add_edge(X,tuple([1])); T.add_edge(tuple([2]),tuple([1]));
+        for i in X:
+            G.add_node(tuple([X[i]]))
+        T.add_node(tuple([1])); T.add_node(tuple([2]))
+        T.add_edge(X,tuple([1]), capacity = 1); T.add_edge(tuple([2]),tuple([1]), capacity = 2);
 
         # Потом добвляем сгруппированные сеты вершин компонент связности T\X
         for i in T.neighbors(X):
             G.add_node(tuple(find_connected_component(T,i,X)))
-        print(list(G.nodes()))
 
+        print(list(G.nodes))
+
+        # фиксануть веса ребер в G
+        for n in G.nodes():
+            if n != X:
+                total_cap = 0
+
+                for i in G0.neighbors(n):
+                    if G0.has_edge(n,i) and i != X:
+                        G.add_edge(i,n, capacity = G0.edges[i,n]['capacity'])
+                for i in X:
+                    if G0.has_edge(i,n):
+                        total_cap += G0.edges[i,n]['capacity']
+                if total_cap:
+                    G.add_edge(X,n)
+                    G.edges[X,n]['capacity'] = total_cap
+
+        print(list(G.nodes))
+
+
+        # Шаг 4
+
+        #cut_value, cutset = find_min_st_cut(G, )
 
 def main():
 
