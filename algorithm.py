@@ -33,12 +33,14 @@ def find_min_st_cut(G,s,t):
     return cut_value, cutset
 
 
-def find_path(G, s, t):
+def find_connected_component(G, t , s):
+    G1 = G.copy()
+    G1.remove_edge(s,t)
     queue = []
     queue.append(s)
-
+    print(queue[-1])
     for k in queue:
-        for el in list(G.neighbors(queue[-1])):
+        for el in list(G1.neighbors(queue[-1])):
             if not (el in queue):
                 queue.append(el)
                 if el == t:
@@ -49,7 +51,7 @@ def find_path(G, s, t):
 
 def build_gomory_hu_tree(G0):
     T = nx.Graph() # Результирующее дерево
-    T.add_node(tuple(G0nodes())) # На первом шаге у Т только 1 вершина
+    T.add_node(tuple(G0.nodes())) # На первом шаге у Т только 1 вершина
     while True:
         # Шаг 2 - выбор группы вершин из V(t) в которой больше 1 вершины
         # Если все группы по одной вершине - дерево готово
@@ -60,10 +62,16 @@ def build_gomory_hu_tree(G0):
         if not X:
             break
 
-        # Шаг 3 -
-        s = X[0]; t = X[1]
-
-
+        # Шаг 3 - конструируем вспомогательный граф G'
+        G = nx.Graph()
+        # Сначала добавляем Х целиком
+        G.add_node(tuple(X))
+        T.add_node(1); T.add_node(2)
+        T.add_edge(X,1); T.add_edge(2,X); T.add_edge(1,2)
+        # Потом добвляем сгруппированные сеты вершин компонент связности T\X
+        for i in T.neighbors(X):
+            G.add_node(tuple(find_connected_component(T,i,X)))
+        print(list(G.nodes()))
 
 
 def main():
@@ -79,10 +87,13 @@ def main():
     print('-------Disconnected--------')
     print(less)
     print(cut_value, cutset)
+
+    build_gomory_hu_tree(G)
     T = nx.Graph()
     T.add_node(1)
     T.add_node(2)
     T.add_node(3)
+    T.add_node(4)
 
     T.add_edge(1,2,weight = 0.3)
     T.add_edge(1,3,weight = 0.4)
