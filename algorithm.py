@@ -36,7 +36,8 @@ def find_min_st_cut(G,s,t):
 
 def find_connected_component(G, s,t):
     G1 = G.copy()
-    G1.remove_edge(s,t)
+    if G1.has_edge(s,t):
+        G1.remove_edge(s,t)
     #print('edges-----------------', list(G1.edges()))
     queue = []
     queue.append(s)
@@ -99,13 +100,23 @@ def build_gomory_hu_tree(G0):
         show_tree(G,'test.png')
 
 
-        # Шаг 4
+        # Шаг 4 Ищем минимальный st-разрез в G
+        s = tuple([X[0]]); t = tuple([X[1]])
+        print(s,t)
+        A = tuple(find_connected_component(G,t,s))
+        B = tuple(find_connected_component(G,s,t))
 
-        #cut_value, cutset = find_min_st_cut(G, )
+        cut_value, cutset = find_min_st_cut(G, s, t)
+
+        G1 = G.copy()
+        G1.remove_edges_from(list(cutset))
+        print(tuple(G.edges()))
+        A = tuple(find_connected_component(G1,t,s))
+        B = tuple(find_connected_component(G1,s,t))
 
 def main():
 
-    G = generate_random_weighted_graph(6,10)
+    G = generate_random_weighted_graph(6,12)
     G.add_node(99); G.add_node(777)
     G.add_edge(1,99, capacity = 1); G.add_edge(777,99, capacity = 2);
     #show_tree(G, "graph.png")
