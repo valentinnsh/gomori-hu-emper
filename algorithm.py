@@ -12,6 +12,7 @@ def show_tree(G, filename):
     labels = nx.get_edge_attributes(G,'capacity')
     nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
     plt.savefig(filename)
+    plt.show()
     plt.cla()
 
 
@@ -70,29 +71,32 @@ def build_gomory_hu_tree(G0):
         # Сначала добавляем Х целиком
         for i in X:
             G.add_node(tuple([X[i]]))
-        T.add_node(tuple([1])); T.add_node(tuple([2]))
-        T.add_edge(X,tuple([1]), capacity = 1); T.add_edge(tuple([2]),tuple([1]), capacity = 2);
-
+        T.add_node(tuple([99])); T.add_node(tuple([777]))
+        T.add_edge(X,tuple([99]), capacity = 1); T.add_edge(tuple([777]),tuple([99]), capacity = 2);
+        show_tree(G,'test.png')
         # Потом добвляем сгруппированные сеты вершин компонент связности T\X
         for i in T.neighbors(X):
             G.add_node(tuple(find_connected_component(T,i,X)))
+        show_tree(G,'test.png')
 
-        print(list(G.nodes))
 
+        for u in X:
+            for v in X:
+                if G0.has_edge(u,v):
+                    G.add_edge(tuple([u]),tuple([v]), capacity = G0.edges[u,v]['capacity'])
+        show_tree(G,'test.png')
         # фиксануть веса ребер в G
         for n in G.nodes():
             if n != X:
-                total_cap = 0
 
-                for i in G0.neighbors(n):
-                    if G0.has_edge(n,i) and i != X:
-                        G.add_edge(i,n, capacity = G0.edges[i,n]['capacity'])
-                for i in X:
-                    if G0.has_edge(i,n):
-                        total_cap += G0.edges[i,n]['capacity']
-                if total_cap:
-                    G.add_edge(X,n)
-                    G.edges[X,n]['capacity'] = total_cap
+                for u in X:
+                    total_cap = 0
+                    for v in n:
+                        if G0.has_edge(u,v):
+                            total_cap += G0.edges[u,v]['capacity']
+                    if total_cap:
+                        G.add_edge(X,n)
+                        G.edges[X,n]['capacity'] = total_cap
 
         print(list(G.nodes))
 
@@ -104,7 +108,7 @@ def build_gomory_hu_tree(G0):
 def main():
 
     G = generate_random_weighted_graph(6,10)
-    show_tree(G, "graph.png")
+    #show_tree(G, "graph.png")
     less = minimum_st_edge_cut(G,0,4)
     node_cut = nx.minimum_node_cut(G,0,4)
 
