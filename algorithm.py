@@ -6,6 +6,29 @@ from sys import maxsize as maxint
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from networkx.algorithms.connectivity import minimum_st_edge_cut
 
+def check_examples():
+    #G = generate_random_weighted_graph(5,13)
+    G = nx.Graph()
+    gn = [0,1,2,3,4,5]
+    G.add_nodes_from(gn)
+    G.add_edge(0,1, capacity = 1)
+    G.add_edge(0,2, capacity = 7)
+    G.add_edge(1,2, capacity = 1)
+    G.add_edge(3,1, capacity = 3)
+    G.add_edge(4,1, capacity = 2)
+    G.add_edge(2,4, capacity = 4)
+    G.add_edge(4,3, capacity = 1)
+    G.add_edge(4,5, capacity = 2)
+    G.add_edge(3,5, capacity = 6)
+
+
+    # show_tree(G, "graph.png")
+
+    T = build_gomory_hu_tree(G)
+    show_tree(T, 'Wiki_example.png', "Example from wikipedia:")
+
+
+
 def show_tree(G, filename, title = 'none'):
     pos =graphviz_layout(G, prog='dot')
     nx.draw(G,pos,with_labels = True)
@@ -71,7 +94,6 @@ def build_gomory_hu_tree(G0):
                 X = n
         if not X:
             break
-        print("Our X = ", X)
         # Шаг 3 - конструируем вспомогательный граф G'
         G = nx.Graph()
         # Сначала добавляем Х целиком
@@ -80,31 +102,29 @@ def build_gomory_hu_tree(G0):
 
         # Потом добвляем сгруппированные сеты вершин компонент связности T\X
         for i in T.neighbors(X):
-            #show_tree(T, 'test.png')
-            G.add_node(find_connected_component(T,i,X)[0])
-        # show_tree(G,'test.png', "G-1")
+            G.add_node(find_connected_component(T,i,X))
 
         for u in X:
             for v in X:
                 if G0.has_edge(u,v):
                     G.add_edge(u,v, capacity = G0.edges[u,v]['capacity'])
-        # show_tree(G,'test.png', "G0")
 
         # фиксануть веса ребер в G
         for n in G.nodes():
-            print('n = ', n)
             if n not in X:
                 for u in X:
                     total_cap = 0
                     for v in n:
                         if G0.has_edge(u,v):
-                            print('u v = ', u, v)
                             total_cap += G0.edges[u,v]['capacity']
+                        if type(v) == tuple:
+                            for k in v:
+                                if G0.has_edge(u,k):
+                                    total_cap += G0.edges[u,k]['capacity']
                     if total_cap:
                         G.add_edge(u,n)
                         G.edges[u,n]['capacity'] = total_cap
 
-        show_tree(G,'test.png', "G")
 
 
         # Шаг 4 Ищем минимальный st-разрез в G
@@ -117,13 +137,13 @@ def build_gomory_hu_tree(G0):
         A = list(find_connected_component(G1,t,s))
         B = list(find_connected_component(G1,s,t))
         for el in A:
-            if type(el) == 'tuple':
+            if type(el) == tuple:
                 A.remove(el)
                 for i in el:
                     A.append(i)
 
         for el in B:
-            if type(el) == 'tuple':
+            if type(el) == tuple:
                 B.remove(el)
                 for i in el:
                     B.append(i)
@@ -131,36 +151,26 @@ def build_gomory_hu_tree(G0):
         # Шаг 5 перестраиваем дерево T
         ax = tuple(set(A)&set(X))
         bx = tuple(set(B)&set(X))
-        print("ax = ", ax)
-        print("bx = ", bx)
         T.add_node(ax)
         T.add_node(bx)
         T.add_edge(ax, bx, capacity = cut_value)
-       # print('cut_value = ', cut_value)
-       # print('cutset = ', cutset)
-        # show_tree(T, 'test.png', 'T after split X')
 
-        new_T_edges = []
         for y in T.neighbors(X) :
-           # print("A = ", A, " y = ", y)
             if y in A:
                 e1 =(ax, y)
             else:
                 e1 =(bx, y)
             w = T.edges[X,y]['capacity']
-            print(w)
             T.add_edge(e1[0], e1[1], capacity = w)
-        #    show_tree(T,'tree.png', 'T after adding y = ' + str(y))
 
         T.remove_node(X)
-        show_tree(T, 'test.png', 'T')
 
     # Шаг 6 - наводим красоту
     result = nx.Graph()
     for i in T.nodes():
-        result.add_node(i)
+        result.add_node(i[0])
     for (u,v) in T.edges():
-        result.add_edge(u, v, capacity = T.edges[u,v]['capacity'])
+        result.add_edge(u[0], v[0], capacity = T.edges[u,v]['capacity'])
 
     return result
 
@@ -168,26 +178,14 @@ def build_gomory_hu_tree(G0):
 
 
 def main():
-
-    #G = generate_random_weighted_graph(5,13)
-    G = nx.Graph()
-    gn = [0,1,2,3,4,5]
-    G.add_nodes_from(gn)
-    G.add_edge(0,1, capacity = 1)
-    G.add_edge(0,2, capacity = 7)
-    G.add_edge(1,2, capacity = 1)
-    G.add_edge(3,1, capacity = 3)
-    G.add_edge(4,1, capacity = 2)
-    G.add_edge(2,4, capacity = 4)
-    G.add_edge(4,3, capacity = 1)
-    G.add_edge(4,5, capacity = 2)
-    G.add_edge(3,5, capacity = 6)
+    check_examples()
+    # G = generate_random_weighted_graph(5,13)
 
 
     # show_tree(G, "graph.png")
 
-    T = build_gomory_hu_tree(G)
-    show_tree(T, 'tree.png')
+    # T = build_gomory_hu_tree(G)
+    # show_tree(T, 'tree.png')
 
 if __name__ == "__main__":
     main()
