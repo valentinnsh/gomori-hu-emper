@@ -7,7 +7,7 @@ from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from networkx.algorithms.connectivity import minimum_st_edge_cut
 
 def check_examples():
-    #G = generate_random_weighted_graph(5,13)
+    #https://en.wikipedia.org/wiki/Gomory%E2%80%93Hu_tree
     G = nx.Graph()
     gn = [0,1,2,3,4,5]
     G.add_nodes_from(gn)
@@ -25,11 +25,31 @@ def check_examples():
     # show_tree(G, "graph.png")
 
     T = build_gomory_hu_tree(G)
-    show_tree(T, 'Wiki_example.png', "Example from wikipedia:")
+    show_tree(T, 'Wiki_example.png', 'Example from wikipedia:')
 
+    # https://studopedia.su/9_4968_primer-zadachi-o-mnogopolyusnom-maksimalnom-potoke.html
+    G1 = nx.Graph()
+    gn = [1,2,3,4,5,6,7]
+    G1.add_nodes_from(gn)
+    G1.add_edge(1,2, capacity = 8)
+    G1.add_edge(1,4, capacity = 7)
+    G1.add_edge(1,3, capacity = 9)
+    G1.add_edge(4,3, capacity = 4)
+    G1.add_edge(4,2, capacity = 5)
+    G1.add_edge(3,6, capacity = 9)
+    G1.add_edge(4,6, capacity = 6)
+    G1.add_edge(2,5, capacity = 7)
+    G1.add_edge(5,4, capacity = 4)
+    G1.add_edge(4,7, capacity = 8)
+    G1.add_edge(6,7, capacity = 11)
+    G1.add_edge(5,7, capacity = 2)
 
+    T = build_gomory_hu_tree(G1)
+    show_tree(T, 'studopedia.png', "Example from studopedia:")
 
 def show_tree(G, filename, title = 'none'):
+    plt.cla()
+
     pos =graphviz_layout(G, prog='dot')
     nx.draw(G,pos,with_labels = True)
     labels = nx.get_edge_attributes(G,'capacity')
@@ -37,7 +57,6 @@ def show_tree(G, filename, title = 'none'):
     plt.savefig(filename)
     plt.title(title)
     plt.show()
-    plt.cla()
 
 
 # Генерирует случайный взвешенный граф с n вершинами
@@ -164,7 +183,7 @@ def build_gomory_hu_tree(G0):
             T.add_edge(e1[0], e1[1], capacity = w)
 
         T.remove_node(X)
-
+        show_tree(T, 'test.png', "T step I")
     # Шаг 6 - наводим красоту
     result = nx.Graph()
     for i in T.nodes():
@@ -178,14 +197,15 @@ def build_gomory_hu_tree(G0):
 
 
 def main():
-    check_examples()
-    # G = generate_random_weighted_graph(5,13)
+    # check_examples() # uncomment to check examples from internet
+    n = 50; e = 70
+    G = generate_random_weighted_graph(n,e)
 
 
-    # show_tree(G, "graph.png")
+    show_tree(G, "graph.png", "Random graph with "+str(n)+" nodes and "+str(e)+" edges")
 
-    # T = build_gomory_hu_tree(G)
-    # show_tree(T, 'tree.png')
+    T = build_gomory_hu_tree(G)
+    show_tree(T, 'tree.png', "GH-tree for random graph with "+str(n)+" nodes and "+str(e)+" edges")
 
 if __name__ == "__main__":
     main()
