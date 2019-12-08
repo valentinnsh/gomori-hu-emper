@@ -39,3 +39,9 @@
 # Images
 *.png
 *.pdf
+# documents
+*.docx
+*.doc
+*.tex
+*.aux
+*.dvi
