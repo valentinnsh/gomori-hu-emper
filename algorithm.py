@@ -22,9 +22,6 @@ def check_examples():
     G.add_edge(4,5, capacity = 2)
     G.add_edge(3,5, capacity = 6)
 
-
-    # show_tree(G, "graph.png")
-
     T = build_gomory_hu_tree(G)
     show_tree(T, 'Wiki_example.png', 'Example from wikipedia:')
 
@@ -82,7 +79,6 @@ def find_connected_component(G, s,t):
     G1 = G.copy()
     if G1.has_edge(s,t):
         G1.remove_edge(s,t)
-    #print('edges-----------------', list(G1.edges()))
     queue = []
     queue.append(s)
     for k in queue:
@@ -90,17 +86,14 @@ def find_connected_component(G, s,t):
             if not (el in queue):
                 queue.append(el)
                 if el == t:
-                    #print("que---------", queue)
 
                     return queue
 
-    # print("que---------", queue)
     return tuple(queue)
 
 def new_find_connected_component(G,s,t):
     con_nodes = nx.node_connected_component(G,s)
     con_edges = set()
-    # print('con_nodes ', con_nodes)
     for el in con_nodes:
         con_edges.update(set(G.edges(el)))
 
@@ -130,8 +123,6 @@ def build_gomory_hu_tree(G0):
                 X = n
         if not X:
             break
-        # print('X = ', list(X))
-        # show_tree(T)
         # Шаг 3 - конструируем вспомогательный граф G'
         G = nx.Graph()
         # Сначала добавляем Х целиком
@@ -143,8 +134,6 @@ def build_gomory_hu_tree(G0):
         T1.remove_node(X)
         for i in T.neighbors(X):
             G.add_node(new_find_connected_component_nodes(T1, i, X))
-            # print("old ", find_connected_component(T,i,X))
-            # print("new ", new_find_connected_component(T,i,X))
         for u in X:
             for v in X:
                 if G0.has_edge(u,v):
@@ -167,7 +156,6 @@ def build_gomory_hu_tree(G0):
                         G.edges[u,n]['capacity'] = total_cap
 
 
-        # show_tree(G)
         # Шаг 4 Ищем минимальный st-разрез в G
         # А также строим множества А и В
         s = X[0]; t = X[1]
@@ -175,12 +163,8 @@ def build_gomory_hu_tree(G0):
         cut_value, cutset = find_min_st_cut(G, s, t)
         G1 = G.copy()
         G1.remove_edges_from(list(cutset))
-        # show_tree(G1, 'test.png', "G1")
         A = list(new_find_connected_component_nodes(G1,s,t))
         B = list(new_find_connected_component_nodes(G1,t,s))
-        # print('------------------------------------------')
-        # print("A = ", A)
-        # print("B = ", B)
         for el in A:
             if type(el) == tuple:
                 A.remove(el)
@@ -210,7 +194,6 @@ def build_gomory_hu_tree(G0):
             T.add_edge(e1[0], e1[1], capacity = w)
 
         T.remove_node(X)
-        # show_tree(T, 'test.png', "T step I")
     # Шаг 6 - наводим красоту
     result = nx.Graph()
     for i in T.nodes():
@@ -218,7 +201,6 @@ def build_gomory_hu_tree(G0):
     for (u,v) in T.edges():
         result.add_edge(u[0], v[0], capacity = T.edges[u,v]['capacity'])
 
-    # print("Len = ", len(list(T.nodes())))
     return result
 
 
@@ -237,7 +219,7 @@ def main():
     end = time.time()
     print("Tree built in " + str(end-start) + " seconds")
 
-    show_tree(T, 'tree.png', "GH-tree for random graph with "+str(n)+" nodes and "+str(e)+" edges")
+    # show_tree(T, 'tree.png', "GH-tree for random graph with "+str(n)+" nodes and "+str(e)+" edges")
 
 if __name__ == "__main__":
     main()
