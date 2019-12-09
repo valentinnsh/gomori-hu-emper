@@ -1,4 +1,5 @@
 import random
+import time
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import deque
@@ -56,14 +57,14 @@ def show_tree(G, filename = 'test.png', title = 'none'):
     nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
     plt.savefig(filename)
     plt.title(title)
-    plt.show()
+    # plt.show()
 
 
 # Генерирует случайный взвешенный граф с n вершинами
-def generate_random_weighted_graph(n,m):
+def generate_random_weighted_graph(n,m,w):
     G = nx.gnm_random_graph(n,m)
     for (u, v) in G.edges():
-        G.edges[u,v]['capacity'] = random.randint(1,17)
+        G.edges[u,v]['capacity'] = random.randint(1,w)
     return G
 
 
@@ -225,13 +226,17 @@ def build_gomory_hu_tree(G0):
 
 def main():
     # check_examples() # uncomment to check examples from internet
-    n = 5000; e = 13000
-    G = generate_random_weighted_graph(n,e)
-
-
+    n = 12; e = 128; w = 100
+    start = time.time()
+    G = generate_random_weighted_graph(n,e,w)
+    end = time.time()
+    print("Generated in " + str(end-start) + " seconds")
     # show_tree(G, "graph.png", "Random graph with "+str(n)+" nodes and "+str(e)+" edges")
-
+    start = time.time()
     T = build_gomory_hu_tree(G)
+    end = time.time()
+    print("Tree built in " + str(end-start) + " seconds")
+
     show_tree(T, 'tree.png', "GH-tree for random graph with "+str(n)+" nodes and "+str(e)+" edges")
 
 if __name__ == "__main__":
