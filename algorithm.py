@@ -1,3 +1,4 @@
+import tester
 import random
 import time
 import networkx as nx
@@ -7,43 +8,6 @@ from sys import maxsize as maxint
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 from networkx.algorithms.connectivity import minimum_st_edge_cut
 
-def check_examples():
-    #https://en.wikipedia.org/wiki/Gomory%E2%80%93Hu_tree
-    G = nx.Graph()
-    gn = [0,1,2,3,4,5]
-    G.add_nodes_from(gn)
-    G.add_edge(0,1, capacity = 1)
-    G.add_edge(0,2, capacity = 7)
-    G.add_edge(1,2, capacity = 1)
-    G.add_edge(3,1, capacity = 3)
-    G.add_edge(4,1, capacity = 2)
-    G.add_edge(2,4, capacity = 4)
-    G.add_edge(4,3, capacity = 1)
-    G.add_edge(4,5, capacity = 2)
-    G.add_edge(3,5, capacity = 6)
-
-    T = build_gomory_hu_tree(G)
-    show_tree(T, 'Wiki_example.png', 'Example from wikipedia:')
-
-    # https://studopedia.su/9_4968_primer-zadachi-o-mnogopolyusnom-maksimalnom-potoke.html
-    G1 = nx.Graph()
-    gn = [1,2,3,4,5,6,7]
-    G1.add_nodes_from(gn)
-    G1.add_edge(1,2, capacity = 8)
-    G1.add_edge(1,4, capacity = 7)
-    G1.add_edge(1,3, capacity = 9)
-    G1.add_edge(4,3, capacity = 4)
-    G1.add_edge(4,2, capacity = 5)
-    G1.add_edge(3,6, capacity = 9)
-    G1.add_edge(4,6, capacity = 6)
-    G1.add_edge(2,5, capacity = 7)
-    G1.add_edge(5,4, capacity = 4)
-    G1.add_edge(4,7, capacity = 8)
-    G1.add_edge(6,7, capacity = 11)
-    G1.add_edge(5,7, capacity = 2)
-
-    T = build_gomory_hu_tree(G1)
-    show_tree(T, 'studopedia.png', "Example from studopedia:")
 
 def show_tree(G, filename = 'test.png', title = 'none'):
     plt.cla()
@@ -57,8 +21,9 @@ def show_tree(G, filename = 'test.png', title = 'none'):
     # plt.show()
 
 
-# Генерирует случайный взвешенный граф с n вершинами
-def generate_random_weighted_graph(n,m,w):
+# Генерирует случайный взвешенный граф с n вершинами, m ребрами
+# и w максимальным весом
+def generate_random_weighted_graph(n,m,w=100):
     G = nx.gnm_random_graph(n,m)
     for (u, v) in G.edges():
         G.edges[u,v]['capacity'] = random.randint(1,w)
@@ -207,13 +172,9 @@ def build_gomory_hu_tree(G0):
 
 
 def main():
-    # check_examples() # uncomment to check examples from internet
-    n = 12; e = 128; w = 100
-    start = time.time()
-    G = generate_random_weighted_graph(n,e,w)
-    end = time.time()
-    print("Generated in " + str(end-start) + " seconds")
-    # show_tree(G, "graph.png", "Random graph with "+str(n)+" nodes and "+str(e)+" edges")
+    n = 100; e = 800
+    G = generate_random_weighted_graph(n,e)
+    # show_tree(G, 'graph.png', "Random graph with "+str(n)+" nodes and "+str(e)+" edges")
     start = time.time()
     T = build_gomory_hu_tree(G)
     end = time.time()
